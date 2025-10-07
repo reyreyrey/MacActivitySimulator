@@ -1,0 +1,546 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		F13E132A2E94B7E900E37379 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F13E13132E94B7E500E37379 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F13E131A2E94B7E500E37379;
+			remoteInfo = MacActivitySimulator;
+		};
+		F13E13342E94B7E900E37379 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F13E13132E94B7E500E37379 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F13E131A2E94B7E500E37379;
+			remoteInfo = MacActivitySimulator;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F13E131B2E94B7E500E37379 /* MacActivitySimulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacActivitySimulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F13E13292E94B7E900E37379 /* MacActivitySimulatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacActivitySimulatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F13E13332E94B7E900E37379 /* MacActivitySimulatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacActivitySimulatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F13E131D2E94B7E500E37379 /* MacActivitySimulator */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MacActivitySimulator;
+			sourceTree = "<group>";
+		};
+		F13E132C2E94B7E900E37379 /* MacActivitySimulatorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MacActivitySimulatorTests;
+			sourceTree = "<group>";
+		};
+		F13E13362E94B7E900E37379 /* MacActivitySimulatorUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MacActivitySimulatorUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F13E13182E94B7E500E37379 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E13262E94B7E900E37379 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E13302E94B7E900E37379 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F13E13122E94B7E500E37379 = {
+			isa = PBXGroup;
+			children = (
+				F13E131D2E94B7E500E37379 /* MacActivitySimulator */,
+				F13E132C2E94B7E900E37379 /* MacActivitySimulatorTests */,
+				F13E13362E94B7E900E37379 /* MacActivitySimulatorUITests */,
+				F13E131C2E94B7E500E37379 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F13E131C2E94B7E500E37379 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F13E131B2E94B7E500E37379 /* MacActivitySimulator.app */,
+				F13E13292E94B7E900E37379 /* MacActivitySimulatorTests.xctest */,
+				F13E13332E94B7E900E37379 /* MacActivitySimulatorUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F13E131A2E94B7E500E37379 /* MacActivitySimulator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13E133D2E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulator" */;
+			buildPhases = (
+				F13E13172E94B7E500E37379 /* Sources */,
+				F13E13182E94B7E500E37379 /* Frameworks */,
+				F13E13192E94B7E500E37379 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F13E131D2E94B7E500E37379 /* MacActivitySimulator */,
+			);
+			name = MacActivitySimulator;
+			packageProductDependencies = (
+			);
+			productName = MacActivitySimulator;
+			productReference = F13E131B2E94B7E500E37379 /* MacActivitySimulator.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F13E13282E94B7E900E37379 /* MacActivitySimulatorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13E13402E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulatorTests" */;
+			buildPhases = (
+				F13E13252E94B7E900E37379 /* Sources */,
+				F13E13262E94B7E900E37379 /* Frameworks */,
+				F13E13272E94B7E900E37379 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F13E132B2E94B7E900E37379 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F13E132C2E94B7E900E37379 /* MacActivitySimulatorTests */,
+			);
+			name = MacActivitySimulatorTests;
+			packageProductDependencies = (
+			);
+			productName = MacActivitySimulatorTests;
+			productReference = F13E13292E94B7E900E37379 /* MacActivitySimulatorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F13E13322E94B7E900E37379 /* MacActivitySimulatorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13E13432E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulatorUITests" */;
+			buildPhases = (
+				F13E132F2E94B7E900E37379 /* Sources */,
+				F13E13302E94B7E900E37379 /* Frameworks */,
+				F13E13312E94B7E900E37379 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F13E13352E94B7E900E37379 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F13E13362E94B7E900E37379 /* MacActivitySimulatorUITests */,
+			);
+			name = MacActivitySimulatorUITests;
+			packageProductDependencies = (
+			);
+			productName = MacActivitySimulatorUITests;
+			productReference = F13E13332E94B7E900E37379 /* MacActivitySimulatorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F13E13132E94B7E500E37379 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					F13E131A2E94B7E500E37379 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					F13E13282E94B7E900E37379 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = F13E131A2E94B7E500E37379;
+					};
+					F13E13322E94B7E900E37379 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = F13E131A2E94B7E500E37379;
+					};
+				};
+			};
+			buildConfigurationList = F13E13162E94B7E500E37379 /* Build configuration list for PBXProject "MacActivitySimulator" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F13E13122E94B7E500E37379;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F13E131C2E94B7E500E37379 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F13E131A2E94B7E500E37379 /* MacActivitySimulator */,
+				F13E13282E94B7E900E37379 /* MacActivitySimulatorTests */,
+				F13E13322E94B7E900E37379 /* MacActivitySimulatorUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F13E13192E94B7E500E37379 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E13272E94B7E900E37379 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E13312E94B7E900E37379 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F13E13172E94B7E500E37379 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E13252E94B7E900E37379 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13E132F2E94B7E900E37379 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F13E132B2E94B7E900E37379 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F13E131A2E94B7E500E37379 /* MacActivitySimulator */;
+			targetProxy = F13E132A2E94B7E900E37379 /* PBXContainerItemProxy */;
+		};
+		F13E13352E94B7E900E37379 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F13E131A2E94B7E500E37379 /* MacActivitySimulator */;
+			targetProxy = F13E13342E94B7E900E37379 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F13E133B2E94B7E900E37379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F13E133C2E94B7E900E37379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		F13E133E2E94B7E900E37379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MacActivitySimulator/MacActivitySimulator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F13E133F2E94B7E900E37379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MacActivitySimulator/MacActivitySimulator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F13E13412E94B7E900E37379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulatorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacActivitySimulator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MacActivitySimulator";
+			};
+			name = Debug;
+		};
+		F13E13422E94B7E900E37379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulatorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacActivitySimulator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MacActivitySimulator";
+			};
+			name = Release;
+		};
+		F13E13442E94B7E900E37379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulatorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MacActivitySimulator;
+			};
+			name = Debug;
+		};
+		F13E13452E94B7E900E37379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rey.MacActivitySimulatorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MacActivitySimulator;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F13E13162E94B7E500E37379 /* Build configuration list for PBXProject "MacActivitySimulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13E133B2E94B7E900E37379 /* Debug */,
+				F13E133C2E94B7E900E37379 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13E133D2E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13E133E2E94B7E900E37379 /* Debug */,
+				F13E133F2E94B7E900E37379 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13E13402E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulatorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13E13412E94B7E900E37379 /* Debug */,
+				F13E13422E94B7E900E37379 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13E13432E94B7E900E37379 /* Build configuration list for PBXNativeTarget "MacActivitySimulatorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13E13442E94B7E900E37379 /* Debug */,
+				F13E13452E94B7E900E37379 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F13E13132E94B7E500E37379 /* Project object */;
+}
