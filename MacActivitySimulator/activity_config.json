@@ -1,0 +1,107 @@
+{
+  "profiles": [
+    {
+      "name": "基线测试 · 稳定 70%",
+      "description": "恒定 70% 输入强度，用于校准 Monitask 在稳定输入下的判定基线。",
+      "segments": [
+        { "minutes": 480, "activity": 70 }
+      ]
+    },
+    {
+      "name": "上限测试 · 稳定 100%",
+      "description": "恒定 100% 持续 8 小时，验证活跃度上限和窗口保底是否稳定。",
+      "segments": [
+        { "minutes": 480, "activity": 100 }
+      ]
+    },
+    {
+      "name": "典型工作日",
+      "description": "9:00–18:00 常规节奏：上午高强度、午休、下午正常、傍晚收尾。约 9 小时。",
+      "segments": [
+        { "minutes": 90, "activity": 85 },
+        { "minutes": 15, "activity": 40 },
+        { "minutes": 75, "activity": 90 },
+        { "minutes": 60, "activity": 0 },
+        { "minutes": 90, "activity": 80 },
+        { "minutes": 15, "activity": 50 },
+        { "minutes": 75, "activity": 85 },
+        { "minutes": 60, "activity": 65 }
+      ]
+    },
+    {
+      "name": "专注开发日",
+      "description": "长时段高强度输入，模拟持续编码/写作场景。约 8 小时，平均 ~85%。",
+      "segments": [
+        { "minutes": 120, "activity": 95 },
+        { "minutes": 15, "activity": 50 },
+        { "minutes": 120, "activity": 100 },
+        { "minutes": 45, "activity": 20 },
+        { "minutes": 90, "activity": 95 },
+        { "minutes": 15, "activity": 60 },
+        { "minutes": 75, "activity": 90 }
+      ]
+    },
+    {
+      "name": "会议为主日",
+      "description": "大量会议时段输入很低，间隙处理事务时活跃度回升。约 8 小时，平均 ~50%。",
+      "segments": [
+        { "minutes": 60, "activity": 80 },
+        { "minutes": 60, "activity": 30 },
+        { "minutes": 30, "activity": 70 },
+        { "minutes": 60, "activity": 0 },
+        { "minutes": 45, "activity": 25 },
+        { "minutes": 30, "activity": 75 },
+        { "minutes": 60, "activity": 35 },
+        { "minutes": 30, "activity": 85 },
+        { "minutes": 105, "activity": 40 }
+      ]
+    },
+    {
+      "name": "轻度办公日",
+      "description": "邮件/阅读/文档为主，间或处理任务。约 8 小时，平均 ~55%。",
+      "segments": [
+        { "minutes": 60, "activity": 60 },
+        { "minutes": 30, "activity": 75 },
+        { "minutes": 90, "activity": 45 },
+        { "minutes": 60, "activity": 0 },
+        { "minutes": 60, "activity": 70 },
+        { "minutes": 90, "activity": 50 },
+        { "minutes": 90, "activity": 60 }
+      ]
+    },
+    {
+      "name": "起伏边界测试",
+      "description": "20 分钟为一段，在 100% 与 10–50% 间剧烈切换，用于测 10 分钟桶的边界判定。",
+      "segments": [
+        { "minutes": 20, "activity": 100 },
+        { "minutes": 20, "activity": 30 },
+        { "minutes": 20, "activity": 100 },
+        { "minutes": 20, "activity": 20 },
+        { "minutes": 20, "activity": 100 },
+        { "minutes": 20, "activity": 40 },
+        { "minutes": 20, "activity": 100 },
+        { "minutes": 20, "activity": 10 },
+        { "minutes": 20, "activity": 100 },
+        { "minutes": 20, "activity": 50 }
+      ]
+    },
+    {
+      "name": "短窗口测试",
+      "description": "5 分钟为一段，快速切换，用于测短窗口检测器的反应灵敏度。",
+      "segments": [
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 },
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 },
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 },
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 },
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 },
+        { "minutes": 5, "activity": 100 },
+        { "minutes": 5, "activity": 0 }
+      ]
+    }
+  ]
+}
