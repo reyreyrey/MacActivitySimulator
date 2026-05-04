@@ -179,6 +179,10 @@ struct ContentView: View {
                                      point: manager.eveningClickPoint,
                                      pickAction: { manager.startPicking(.evening) },
                                      testAction: { manager.testEveningClick() })
+                            CoordRow(label: "Monitask 最小化按钮 (左上黄点)",
+                                     point: manager.minimizeClickPoint,
+                                     pickAction: { manager.startPicking(.minimize) },
+                                     testAction: { manager.testMinimizeClick() })
 
                             Divider().padding(.vertical, 2)
 

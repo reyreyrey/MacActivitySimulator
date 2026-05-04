@@ -56,10 +56,11 @@ class ActivityManager: ObservableObject {
     @Published var effectiveActivityLevel: Int = 0
     @Published var currentSegmentInfo: String = "—"
 
-    // MARK: - 三个点击坐标（UserDefaults 持久化）
+    // MARK: - 四个点击坐标（UserDefaults 持久化）
     @Published var noonPauseClickPoint: CGPoint = CGPoint(x: 400, y: 300)
     @Published var noonResumeClickPoint: CGPoint = CGPoint(x: 400, y: 400)
     @Published var eveningClickPoint: CGPoint = CGPoint(x: 680, y: 477)
+    @Published var minimizeClickPoint: CGPoint = CGPoint(x: 30, y: 30)
 
     private let noonPauseXKey  = "noonPauseClickPoint.x"
     private let noonPauseYKey  = "noonPauseClickPoint.y"
@@ -67,12 +68,15 @@ class ActivityManager: ObservableObject {
     private let noonResumeYKey = "noonResumeClickPoint.y"
     private let eveningXKey    = "eveningClickPoint.x"
     private let eveningYKey    = "eveningClickPoint.y"
+    private let minimizeXKey   = "minimizeClickPoint.x"
+    private let minimizeYKey   = "minimizeClickPoint.y"
 
     // MARK: - 拾取状态
     enum PickTarget: String {
         case noonPause  = "12:30 暂停"
         case noonResume = "13:30 恢复"
         case evening    = "晚间触发"
+        case minimize   = "Monitask 最小化按钮"
     }
     @Published var pickTarget: PickTarget? = nil
     var isPickingPoint: Bool { pickTarget != nil }
@@ -205,7 +209,11 @@ class ActivityManager: ObservableObject {
            let y = UserDefaults.standard.object(forKey: eveningYKey) as? Double {
             eveningClickPoint = CGPoint(x: x, y: y)
         }
-        log("📂 坐标加载：午暂停=(\(Int(noonPauseClickPoint.x)),\(Int(noonPauseClickPoint.y))) · 午恢复=(\(Int(noonResumeClickPoint.x)),\(Int(noonResumeClickPoint.y))) · 晚间=(\(Int(eveningClickPoint.x)),\(Int(eveningClickPoint.y)))")
+        if let x = UserDefaults.standard.object(forKey: minimizeXKey) as? Double,
+           let y = UserDefaults.standard.object(forKey: minimizeYKey) as? Double {
+            minimizeClickPoint = CGPoint(x: x, y: y)
+        }
+        log("📂 坐标加载：午暂停=(\(Int(noonPauseClickPoint.x)),\(Int(noonPauseClickPoint.y))) · 午恢复=(\(Int(noonResumeClickPoint.x)),\(Int(noonResumeClickPoint.y))) · 晚间=(\(Int(eveningClickPoint.x)),\(Int(eveningClickPoint.y))) · 最小化=(\(Int(minimizeClickPoint.x)),\(Int(minimizeClickPoint.y)))")
     }
 
     private func savePoint(_ target: PickTarget, _ p: CGPoint) {
@@ -222,6 +230,10 @@ class ActivityManager: ObservableObject {
             eveningClickPoint = p
             UserDefaults.standard.set(Double(p.x), forKey: eveningXKey)
             UserDefaults.standard.set(Double(p.y), forKey: eveningYKey)
+        case .minimize:
+            minimizeClickPoint = p
+            UserDefaults.standard.set(Double(p.x), forKey: minimizeXKey)
+            UserDefaults.standard.set(Double(p.y), forKey: minimizeYKey)
         }
         log("💾 保存 \(target.rawValue) 坐标：(\(Int(p.x)), \(Int(p.y)))")
     }
@@ -963,27 +975,33 @@ class ActivityManager: ObservableObject {
     }
 
     // MARK: - 最小化 Monitask
-    /// 发送 ⌘+M 将 Monitask 当前窗口最小化到 Dock。
-    /// 前提：调用前 Monitask 应是前台 App（点击之后通常满足）。
+    /// 通过点击采集好的「最小化按钮」坐标来最小化 Monitask。
+    /// 这是最稳的方式 — 不依赖 ⌘+M / ⌘+H / AppleScript 权限。
+    /// 调用前请先用「取」按钮采集 Monitask 窗口左上角黄色最小化按钮的位置。
     func minimizeMonitask() {
-        // 兜底：先确保 Monitask 是激活状态
+        // 先把 Monitask 激活到前台，让最小化按钮可见
         if let app = NSWorkspace.shared.runningApplications.first(where: {
             $0.bundleURL?.path == self.appPath || $0.localizedName == "Monitask"
         }) {
             app.activate()
         }
 
-        // 稍等 0.15 秒让前台切换生效再发 ⌘+M
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            let src = CGEventSource(stateID: .hidSystemState)
-            let kVK_ANSI_M: CGKeyCode = 46
-            let down = CGEvent(keyboardEventSource: src, virtualKey: kVK_ANSI_M, keyDown: true)
-            let up = CGEvent(keyboardEventSource: src, virtualKey: kVK_ANSI_M, keyDown: false)
-            down?.flags = .maskCommand
-            up?.flags = .maskCommand
-            down?.post(tap: .cghidEventTap)
-            up?.post(tap: .cghidEventTap)
-            log("🗕 已发送 ⌘+M 最小化 Monitask")
+        // 等 0.3 秒让窗口前台化
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.performClick(at: self.minimizeClickPoint)
+            log("🗕 已点击最小化按钮 (\(Int(self.minimizeClickPoint.x)), \(Int(self.minimizeClickPoint.y)))")
+        }
+    }
+
+    /// 测试按钮：仅测试「最小化按钮点击」这一个动作
+    func testMinimizeClick() {
+        log(">>> 【测试】Monitask 最小化按钮点击")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.performClick(at: self.minimizeClickPoint)
+                log(">>> 【测试】最小化按钮点击完成")
+            }
         }
     }
 
