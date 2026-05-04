@@ -101,6 +101,12 @@ class ActivityManager: ObservableObject {
     private var currentBucketLevel: Int = 0
     private var pendingBucketOffset: Int? = nil
 
+    // MARK: - 活跃分钟分布（让 Monitask 看到真实的活跃比例）
+    // 每个 10 分钟桶里，按当前 level 分配 N 个活跃分钟 + (10-N) 个空闲分钟
+    // 空闲分钟内一个事件都不发，让 Monitask 把这一分钟判为无活动
+    private var minuteActiveFlags: [Bool] = Array(repeating: true, count: 10)
+    private var minuteFlagsBucketIdx: Int = -1
+
     // MARK: - 随机分心（模拟人类切到 Telegram/Chrome/访达 看一会儿）
     @Published var enableRandomDistraction: Bool = false {
         didSet {
@@ -281,8 +287,9 @@ class ActivityManager: ObservableObject {
         noonResumeTaskExecuted = false
         eveningTaskExecuted = false
 
-        // 重置 10 分钟波动桶状态
+        // 重置 10 分钟波动桶状态 + 活跃分钟分布
         resetJitterState()
+        resetMinuteFlags()
 
         generateEveningTriggerTime()
         startNoonMonitor()
@@ -405,6 +412,41 @@ class ActivityManager: ObservableObject {
         pendingBucketOffset = nil
     }
 
+    /// 重置活跃分钟分布
+    private func resetMinuteFlags() {
+        minuteActiveFlags = Array(repeating: true, count: 10)
+        minuteFlagsBucketIdx = -1
+    }
+
+    /// 进入新 10 分钟桶时根据 level 重新分配活跃/空闲分钟
+    /// level=70% → 7 个活跃分钟 + 3 个空闲分钟，位置随机打散
+    private func ensureMinuteFlags(forLevel level: Int) {
+        guard let s = startTime else {
+            // 还没拿到 startTime，全部按活跃处理
+            return
+        }
+        let bucketIdx = Int(Date().timeIntervalSince(s) / 600)
+        if bucketIdx == minuteFlagsBucketIdx { return }
+
+        let activeCount = max(0, min(10, Int((Double(level) / 10.0).rounded())))
+        var flags = Array(repeating: false, count: 10)
+        for i in (0..<10).shuffled().prefix(activeCount) {
+            flags[i] = true
+        }
+        minuteActiveFlags = flags
+        minuteFlagsBucketIdx = bucketIdx
+        let pattern = flags.map { $0 ? "■" : "□" }.joined()
+        log("🪟 第 \(bucketIdx + 1) 个 10 分钟桶 → \(activeCount)/10 活跃分钟 [\(pattern)]（基于 \(level)%）")
+    }
+
+    /// 当前所在的「分钟槽位」（10 分钟桶内的 0..9）是否标记为活跃
+    private func isCurrentMinuteActive() -> Bool {
+        guard let s = startTime, !minuteActiveFlags.isEmpty else { return true }
+        let inBucket = Date().timeIntervalSince(s).truncatingRemainder(dividingBy: 600)
+        let idx = max(0, min(9, Int(inBucket / 60)))
+        return minuteActiveFlags[idx]
+    }
+
     /// 基于基线活跃度，按 10 分钟桶生成「一高一低配对」的实际活跃度
     /// 算法：相邻两个 10 分钟桶配对，第一桶随机决定高/低，第二桶取相反方向
     /// 高桶 = 基线 + spread，低桶 = 基线 - spread，spread 在 25..40 之间随机
@@ -489,7 +531,10 @@ class ActivityManager: ObservableObject {
             let elapsed = now.timeIntervalSince(windowStart)
 
             if elapsed >= 60 {
-                if !isInLunchBreak() {
+                // 仅在「这一分钟产生过事件」（也就是该分钟原本是活跃分钟）时才补齐两类
+                // 空闲分钟保持完全无事件，让 Monitask 把它判为 idle
+                let hadActivity = (mouseInWindow + keyInWindow + scrollInWindow) > 0
+                if !isInLunchBreak() && hadActivity {
                     if mouseInWindow == 0 {
                         log(">>> 窗口收尾补齐：鼠标")
                         simulateMouseMoveSmooth()
@@ -514,8 +559,15 @@ class ActivityManager: ObservableObject {
             }
 
             let level = computeActivityLevel()
+            ensureMinuteFlags(forLevel: level)
 
             if level <= 0 {
+                Thread.sleep(forTimeInterval: 1.0)
+                continue
+            }
+
+            // 空闲分钟：什么都不发，让 Monitask 真的把这一分钟当 idle
+            if !isCurrentMinuteActive() {
                 Thread.sleep(forTimeInterval: 1.0)
                 continue
             }
@@ -736,6 +788,26 @@ class ActivityManager: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 self.performClick(at: self.noonPauseClickPoint)
                 log(">>> 【测试】12:30 暂停点击完成")
+            }
+        }
+    }
+
+    /// 完整复现真实 13:30 恢复流程（2s+3s 延迟、更新状态文字、点击后最小化），
+    /// 但不修改任务执行标志，可反复触发
+    func simulateNoonResumeFlow() {
+        log(">>> 【模拟 13:30】完整复现 13:30 恢复任务（不写执行标志，可重复触发）")
+        DispatchQueue.main.async { self.statusText = "🟡 模拟 13:30 恢复中..." }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
+            log(">>> 【模拟 13:30】打开 App: \(self.appPath)")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                self.performClick(at: self.noonResumeClickPoint)
+                log(">>> 【模拟 13:30】恢复点击完成")
+                DispatchQueue.main.async { self.statusText = "🟢 已模拟 13:30 恢复点击" }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    self.minimizeMonitask()
+                }
             }
         }
     }

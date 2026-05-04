@@ -182,8 +182,11 @@ struct ContentView: View {
 
                             Divider().padding(.vertical, 2)
 
-                            HStack {
+                            HStack(spacing: 8) {
                                 Spacer()
+                                Button("模拟 13:30 全流程") { manager.simulateNoonResumeFlow() }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.green)
                                 Button("一键全流程测试") { manager.testFullFlow() }
                                     .buttonStyle(.borderedProminent)
                                     .tint(.purple)
