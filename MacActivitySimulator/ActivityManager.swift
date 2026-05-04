@@ -87,6 +87,41 @@ class ActivityManager: ObservableObject {
     @Published var eveningTriggerTime: Date?
     @Published var eveningTriggerText: String = "—"
 
+    // MARK: - 10 分钟波动
+    @Published var enableTenMinJitter: Bool = false {
+        didSet {
+            UserDefaults.standard.set(enableTenMinJitter, forKey: tenMinJitterKey)
+            if !enableTenMinJitter {
+                resetJitterState()
+            }
+        }
+    }
+    private let tenMinJitterKey = "enableTenMinJitter"
+    private var currentBucketIndex: Int = -1
+    private var currentBucketLevel: Int = 0
+    private var pendingBucketOffset: Int? = nil
+
+    // MARK: - 随机分心（模拟人类切到 Telegram/Chrome/访达 看一会儿）
+    @Published var enableRandomDistraction: Bool = false {
+        didSet {
+            UserDefaults.standard.set(enableRandomDistraction, forKey: distractionKey)
+            if enableRandomDistraction && running {
+                scheduleNextDistraction()
+            } else if !enableRandomDistraction {
+                distractionTimer?.invalidate()
+                distractionTimer = nil
+                DispatchQueue.main.async { self.nextDistractionText = "—" }
+            }
+        }
+    }
+    private let distractionKey = "enableRandomDistraction"
+    private var distractionTimer: Timer?
+    private var distractionInProgress = false
+    @Published var nextDistractionText: String = "—"
+
+    private let distractionAppNames = ["Telegram", "Chrome", "访达"]
+    private let androidStudioPath = "/Applications/Android Studio.app"
+
     private var elapsedTimer: Timer?
     private var running = false
     private var workThread: Thread?
@@ -109,6 +144,8 @@ class ActivityManager: ObservableObject {
     private init() {
         loadProfiles()
         loadClickPoints()
+        enableTenMinJitter = UserDefaults.standard.bool(forKey: tenMinJitterKey)
+        enableRandomDistraction = UserDefaults.standard.bool(forKey: distractionKey)
     }
 
     // MARK: - 午休判断
@@ -244,9 +281,16 @@ class ActivityManager: ObservableObject {
         noonResumeTaskExecuted = false
         eveningTaskExecuted = false
 
+        // 重置 10 分钟波动桶状态
+        resetJitterState()
+
         generateEveningTriggerTime()
         startNoonMonitor()
         startEveningMonitor()
+
+        if enableRandomDistraction {
+            scheduleNextDistraction()
+        }
 
         workThread = Thread {
             self.simulateWorkLoop()
@@ -323,32 +367,22 @@ class ActivityManager: ObservableObject {
         return profiles[selectedProfileIndex]
     }
 
-    private func computeActivityLevel() -> Int {
+    /// 计算「基线」活跃度（不含 10 分钟波动），返回 (level, 显示信息)
+    private func computeBaseActivity() -> (level: Int, info: String) {
         if isInLunchBreak() {
-            DispatchQueue.main.async {
-                self.effectiveActivityLevel = 0
-                self.currentSegmentInfo = "🍱 午休时段 \(String(format: "%02d:%02d", self.lunchStartHour, self.lunchStartMinute))–\(String(format: "%02d:%02d", self.lunchEndHour, self.lunchEndMinute))，活跃度强制 0%"
-            }
-            return 0
+            let info = "🍱 午休时段 \(String(format: "%02d:%02d", lunchStartHour, lunchStartMinute))–\(String(format: "%02d:%02d", lunchEndHour, lunchEndMinute))，活跃度强制 0%"
+            return (0, info)
         }
 
         switch mode {
         case .fixed:
             let lvl = globalActivityLevel
-            DispatchQueue.main.async {
-                self.effectiveActivityLevel = lvl
-                self.currentSegmentInfo = "固定 \(lvl)%"
-            }
-            return lvl
+            return (lvl, "固定 \(lvl)%")
         case .schedule:
             guard let profile = currentProfile(), profile.totalMinutes > 0,
                   let start = startTime else {
                 let lvl = globalActivityLevel
-                DispatchQueue.main.async {
-                    self.effectiveActivityLevel = lvl
-                    self.currentSegmentInfo = "档案不可用，回落到固定 \(lvl)%"
-                }
-                return lvl
+                return (lvl, "档案不可用，回落到固定 \(lvl)%")
             }
             let elapsedMin = Int(Date().timeIntervalSince(start) / 60)
             var offset = elapsedMin % profile.totalMinutes
@@ -356,16 +390,85 @@ class ActivityManager: ObservableObject {
                 if offset < seg.minutes {
                     let lvl = seg.activity
                     let remaining = seg.minutes - offset
-                    DispatchQueue.main.async {
-                        self.effectiveActivityLevel = lvl
-                        self.currentSegmentInfo = "\(profile.name) · 段\(i + 1)/\(profile.segments.count) · \(lvl)% · 剩 \(remaining) 分"
-                    }
-                    return lvl
+                    return (lvl, "\(profile.name) · 段\(i + 1)/\(profile.segments.count) · \(lvl)% · 剩 \(remaining) 分")
                 }
                 offset -= seg.minutes
             }
-            return globalActivityLevel
+            return (globalActivityLevel, "档案越界，回落到固定 \(globalActivityLevel)%")
         }
+    }
+
+    /// 重置 10 分钟波动桶状态
+    private func resetJitterState() {
+        currentBucketIndex = -1
+        currentBucketLevel = 0
+        pendingBucketOffset = nil
+    }
+
+    /// 基于基线活跃度，按 10 分钟桶生成「一高一低配对」的实际活跃度
+    /// 算法：相邻两个 10 分钟桶配对，第一桶随机决定高/低，第二桶取相反方向
+    /// 高桶 = 基线 + spread，低桶 = 基线 - spread，spread 在 25..40 之间随机
+    /// 这样长时间均值仍接近基线，但每个 10 分钟桶有明显起伏
+    private func bucketAdjustedLevel(base: Int) -> Int {
+        guard let start = startTime else { return base }
+        let elapsedSec = Date().timeIntervalSince(start)
+        let bucketIdx = Int(elapsedSec / 600)   // 600 秒 = 10 分钟
+
+        if bucketIdx == currentBucketIndex {
+            return currentBucketLevel
+        }
+
+        currentBucketIndex = bucketIdx
+
+        let offsetToUse: Int
+        if let pending = pendingBucketOffset {
+            // 配对中的第二桶：使用上一桶预存的反向偏移
+            offsetToUse = pending
+            pendingBucketOffset = nil
+        } else {
+            // 新的一对桶：随机决定本桶是高峰还是低谷
+            let spread = Int.random(in: 25...40)
+            let highFirst = Bool.random()
+            offsetToUse = highFirst ? spread : -spread
+            pendingBucketOffset = highFirst ? -spread : spread
+        }
+
+        let raw = base + offsetToUse
+        let clamped = max(8, min(100, raw))     // 至少 8% 防止被判定为完全空闲
+        currentBucketLevel = clamped
+        let sign = offsetToUse > 0 ? "+" : ""
+        log("🎲 进入第 \(bucketIdx + 1) 个 10 分钟桶 → \(clamped)%（基线 \(base)%, 偏移 \(sign)\(offsetToUse)）")
+        return clamped
+    }
+
+    private func computeActivityLevel() -> Int {
+        let base = computeBaseActivity()
+
+        // 午休强制 0%，不参与波动
+        if base.level == 0 {
+            DispatchQueue.main.async {
+                self.effectiveActivityLevel = 0
+                self.currentSegmentInfo = base.info
+            }
+            return 0
+        }
+
+        let finalLevel: Int
+        let info: String
+        if enableTenMinJitter {
+            let bucketLvl = bucketAdjustedLevel(base: base.level)
+            finalLevel = bucketLvl
+            info = "\(base.info) · 🎲 桶 \(bucketLvl)%"
+        } else {
+            finalLevel = base.level
+            info = base.info
+        }
+
+        DispatchQueue.main.async {
+            self.effectiveActivityLevel = finalLevel
+            self.currentSegmentInfo = info
+        }
+        return finalLevel
     }
 
     // MARK: - 主循环
@@ -522,14 +625,20 @@ class ActivityManager: ObservableObject {
 
     private func simulateScroll() {
         guard running else { return }
+        // 一次「滚动事件」其实是 2-4 个连续滚轮 tick，更接近真人滑动手感
         let src = CGEventSource(stateID: .hidSystemState)
         let direction: Int32 = Bool.random() ? 1 : -1
-        let amount = Int32.random(in: 1...3) * direction
-        if let scroll = CGEvent(scrollWheelEvent2Source: src, units: .pixel,
-                                wheelCount: 1, wheel1: amount, wheel2: 0, wheel3: 0) {
-            scroll.post(tap: .cghidEventTap)
+        let ticks = Int.random(in: 2...4)
+        for _ in 0..<ticks {
+            guard running else { return }
+            let amount = Int32.random(in: 3...8) * direction
+            if let scroll = CGEvent(scrollWheelEvent2Source: src, units: .pixel,
+                                    wheelCount: 1, wheel1: amount, wheel2: 0, wheel3: 0) {
+                scroll.post(tap: .cghidEventTap)
+            }
+            Thread.sleep(forTimeInterval: Double.random(in: 0.03...0.10))
         }
-        log("🖲 滚轮 \(amount)")
+        log("🖲 滚轮 \(direction > 0 ? "↑" : "↓") × \(ticks)")
     }
 
     // MARK: - 午间任务监控（12:30 暂停 / 13:30 恢复）
@@ -581,6 +690,10 @@ class ActivityManager: ObservableObject {
                 self.performClick(at: self.noonResumeClickPoint)
                 log(">>> 13:30 恢复点击完成")
                 DispatchQueue.main.async { self.statusText = "🟢 午间恢复（13:30 已点击）" }
+                // 点击完成后延迟 0.8 秒最小化 Monitask
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    self.minimizeMonitask()
+                }
             }
         }
     }
@@ -634,6 +747,9 @@ class ActivityManager: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 self.performClick(at: self.noonResumeClickPoint)
                 log(">>> 【测试】13:30 恢复点击完成")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    self.minimizeMonitask()
+                }
             }
         }
     }
@@ -661,6 +777,144 @@ class ActivityManager: ObservableObject {
         }
     }
 
+    // MARK: - 随机分心调度
+    /// 安排下一次随机分心：15–40 分钟后
+    private func scheduleNextDistraction() {
+        distractionTimer?.invalidate()
+        let interval = TimeInterval.random(in: 15 * 60 ... 40 * 60)
+        let target = Date().addingTimeInterval(interval)
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        DispatchQueue.main.async {
+            self.nextDistractionText = "下次分心：\(f.string(from: target))"
+        }
+        log("⏰ 下次随机分心：\(f.string(from: target))（约 \(Int(interval / 60)) 分钟后）")
+
+        let t = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            self?.executeRandomDistraction()
+        }
+        distractionTimer = t
+    }
+
+    /// 触发一次随机分心：开 App → 上下滚动 8–20 秒 → 切回 Android Studio
+    func executeRandomDistraction() {
+        guard !distractionInProgress else {
+            log("⚠️ 分心已在进行中，跳过本次")
+            return
+        }
+        // 午休或当前活跃度为 0 时跳过，但仍排下一次
+        let base = computeBaseActivity()
+        if isInLunchBreak() || base.level == 0 {
+            log("🎬 当前 0% 活跃，跳过本次分心，重新排期")
+            if running && enableRandomDistraction { scheduleNextDistraction() }
+            return
+        }
+
+        distractionInProgress = true
+        let appName = distractionAppNames.randomElement() ?? "Chrome"
+        log("🎬 随机分心 → 打开 \(appName)")
+        DispatchQueue.main.async {
+            self.statusText = "🎬 模拟使用 \(appName) ..."
+        }
+        openDistractionApp(appName)
+
+        let browseDuration = Double.random(in: 8...20)
+        // 等 1.5 秒让 App 起来，再开始滚动
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let endAt = Date().addingTimeInterval(browseDuration)
+                while Date() < endAt {
+                    self.simulateScrollBurst()
+                    // 每段滚动后短暂「停下来读一下」
+                    Thread.sleep(forTimeInterval: Double.random(in: 0.5...1.8))
+                }
+
+                // 切回 Android Studio
+                DispatchQueue.main.async {
+                    log("🎬 浏览 \(Int(browseDuration)) 秒结束 → 切回 Android Studio")
+                    NSWorkspace.shared.open(URL(fileURLWithPath: self.androidStudioPath))
+                    self.distractionInProgress = false
+
+                    if self.running {
+                        // 恢复正常状态文字
+                        self.statusText = self.mode == .fixed
+                            ? "🟢 运行中（固定 \(self.globalActivityLevel)%）"
+                            : "🟢 运行中（档案：\(self.currentProfile()?.name ?? "—")）"
+                        if self.enableRandomDistraction {
+                            self.scheduleNextDistraction()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// 把指定名字映射到具体的打开方式
+    private func openDistractionApp(_ name: String) {
+        switch name {
+        case "Telegram":
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications/Telegram.app"))
+        case "Chrome":
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications/Google Chrome.app"))
+        case "访达":
+            // 打开用户主目录窗口，等于把 Finder 拉到前台
+            NSWorkspace.shared.open(URL(fileURLWithPath: NSHomeDirectory()))
+        default:
+            break
+        }
+    }
+
+    /// 一次「连续上下滚动」：5–12 个滚轮 tick，方向随机一致
+    private func simulateScrollBurst() {
+        let src = CGEventSource(stateID: .hidSystemState)
+        let direction: Int32 = Bool.random() ? -1 : 1
+        let ticks = Int.random(in: 5...12)
+        for _ in 0..<ticks {
+            let amount = Int32.random(in: 8...18) * direction
+            if let scroll = CGEvent(scrollWheelEvent2Source: src, units: .pixel,
+                                    wheelCount: 1, wheel1: amount, wheel2: 0, wheel3: 0) {
+                scroll.post(tap: .cghidEventTap)
+            }
+            DispatchQueue.main.async {
+                self.currentScrollCount += 1
+                self.totalScrollCount += 1
+            }
+            Thread.sleep(forTimeInterval: Double.random(in: 0.04...0.13))
+        }
+        log("🖲 分心滚动 \(ticks) 次（\(direction > 0 ? "↑" : "↓")）")
+    }
+
+    /// 测试按钮：立即触发一次分心流程
+    func testDistraction() {
+        log(">>> 【测试】立即触发随机分心")
+        executeRandomDistraction()
+    }
+
+    // MARK: - 最小化 Monitask
+    /// 发送 ⌘+M 将 Monitask 当前窗口最小化到 Dock。
+    /// 前提：调用前 Monitask 应是前台 App（点击之后通常满足）。
+    func minimizeMonitask() {
+        // 兜底：先确保 Monitask 是激活状态
+        if let app = NSWorkspace.shared.runningApplications.first(where: {
+            $0.bundleURL?.path == self.appPath || $0.localizedName == "Monitask"
+        }) {
+            app.activate()
+        }
+
+        // 稍等 0.15 秒让前台切换生效再发 ⌘+M
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            let src = CGEventSource(stateID: .hidSystemState)
+            let kVK_ANSI_M: CGKeyCode = 46
+            let down = CGEvent(keyboardEventSource: src, virtualKey: kVK_ANSI_M, keyDown: true)
+            let up = CGEvent(keyboardEventSource: src, virtualKey: kVK_ANSI_M, keyDown: false)
+            down?.flags = .maskCommand
+            up?.flags = .maskCommand
+            down?.post(tap: .cghidEventTap)
+            up?.post(tap: .cghidEventTap)
+            log("🗕 已发送 ⌘+M 最小化 Monitask")
+        }
+    }
+
     // MARK: - 基础点击
     func performClick(at point: CGPoint) {
         let src = CGEventSource(stateID: .hidSystemState)
@@ -674,6 +928,10 @@ class ActivityManager: ObservableObject {
     func stopAllTasks() {
         timers.forEach { $0.invalidate() }
         timers.removeAll()
+        distractionTimer?.invalidate()
+        distractionTimer = nil
+        distractionInProgress = false
+        DispatchQueue.main.async { self.nextDistractionText = "—" }
         running = false
         workThread?.cancel()
         workThread = nil

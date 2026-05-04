@@ -52,6 +52,43 @@ struct ContentView: View {
                                 }
                             }
                         }
+
+                        Divider()
+
+                        Toggle(isOn: $manager.enableTenMinJitter) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("10 分钟随机波动").font(.callout)
+                                Text("相邻 10 分钟桶配对：一高一低（基线 ± 25~40%），整体均值仍接近设置值")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .toggleStyle(.switch)
+
+                        Toggle(isOn: $manager.enableRandomDistraction) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("随机分心（Telegram / Chrome / 访达）").font(.callout)
+                                Text("每 15~40 分钟随机切到其中一个 App，上下滚动 8~20 秒后切回 Android Studio")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .toggleStyle(.switch)
+
+                        if manager.enableRandomDistraction {
+                            HStack {
+                                Text(manager.nextDistractionText)
+                                    .font(.caption2)
+                                    .foregroundColor(.purple)
+                                Spacer()
+                                Button("立即测试分心") { manager.testDistraction() }
+                                    .buttonStyle(.bordered)
+                                    .tint(.purple)
+                                    .controlSize(.small)
+                            }
+                        }
                     }
                     .padding(8)
                 }
