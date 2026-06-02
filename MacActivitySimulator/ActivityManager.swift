@@ -73,8 +73,8 @@ class ActivityManager: ObservableObject {
 
     // MARK: - 拾取状态
     enum PickTarget: String {
-        case noonPause  = "12:30 暂停"
-        case noonResume = "13:30 恢复"
+        case noonPause  = "12:00 暂停"
+        case noonResume = "13:00 恢复"
         case evening    = "晚间触发"
         case minimize   = "Monitask 最小化按钮"
     }
@@ -87,7 +87,7 @@ class ActivityManager: ObservableObject {
     @Published var noonResumeTaskExecuted = false
     @Published var eveningTaskExecuted = false
 
-    // MARK: - 晚间随机触发时间（19:10–19:40）
+    // MARK: - 晚间随机触发时间（18:30–19:00）
     @Published var eveningTriggerTime: Date?
     @Published var eveningTriggerText: String = "—"
 
@@ -141,15 +141,15 @@ class ActivityManager: ObservableObject {
 
     // 午休时段（强制 0% 活跃度）
     private let lunchStartHour = 12
-    private let lunchStartMinute = 30
+    private let lunchStartMinute = 0
     private let lunchEndHour = 13
-    private let lunchEndMinute = 30
+    private let lunchEndMinute = 0
 
     // 晚间随机窗口
-    private let eveningStartHour = 19
-    private let eveningStartMinute = 10
+    private let eveningStartHour = 18
+    private let eveningStartMinute = 30
     private let eveningEndHour = 19
-    private let eveningEndMinute = 40
+    private let eveningEndMinute = 0
 
     private init() {
         loadProfiles()
@@ -340,7 +340,7 @@ class ActivityManager: ObservableObject {
         elapsedTimeText = String(format: "%02d:%02d:%02d", h, m, ss)
     }
 
-    // MARK: - 晚间随机时间生成（19:10–19:40 之间）
+    // MARK: - 晚间随机时间生成（18:30–19:00 之间）
     private func generateEveningTriggerTime() {
         let cal = Calendar.current
         let now = Date()
@@ -358,10 +358,10 @@ class ActivityManager: ObservableObject {
         let target = startBound.addingTimeInterval(offset)
 
         if target < now {
-            // 已经过了 19:40，今日跳过
+            // 已经过了 19:00，今日跳过
             DispatchQueue.main.async {
                 self.eveningTriggerTime = nil
-                self.eveningTriggerText = "今日已过 19:40，跳过"
+                self.eveningTriggerText = "今日已过 19:00，跳过"
             }
             eveningTaskExecuted = true
             log("⏭ 已过 \(eveningEndHour):\(eveningEndMinute)，今日不再触发晚间任务")
@@ -374,7 +374,7 @@ class ActivityManager: ObservableObject {
             }
             let f = DateFormatter()
             f.dateFormat = "HH:mm:ss"
-            log("⏰ 今日晚间触发时间：\(f.string(from: target))（窗口 19:10–19:40）")
+            log("⏰ 今日晚间触发时间：\(f.string(from: target))（窗口 18:30–19:00）")
         }
     }
 
@@ -705,7 +705,7 @@ class ActivityManager: ObservableObject {
         log("🖲 滚轮 \(direction > 0 ? "↑" : "↓") × \(ticks)")
     }
 
-    // MARK: - 午间任务监控（12:30 暂停 / 13:30 恢复）
+    // MARK: - 午间任务监控（12:00 暂停 / 13:00 恢复）
     private func startNoonMonitor() {
         let t = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
             self?.checkNoonTasks()
@@ -729,15 +729,15 @@ class ActivityManager: ObservableObject {
 
     private func executeNoonPauseTask() {
         noonPauseTaskExecuted = true
-        log(">>> 12:30 暂停任务触发 → 点击 (\(Int(noonPauseClickPoint.x)), \(Int(noonPauseClickPoint.y)))")
+        log(">>> 12:00 暂停任务触发 → 点击 (\(Int(noonPauseClickPoint.x)), \(Int(noonPauseClickPoint.y)))")
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
             log(">>> 打开 App: \(self.appPath)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.performClick(at: self.noonPauseClickPoint)
-                log(">>> 12:30 暂停点击完成")
-                DispatchQueue.main.async { self.statusText = "🟡 午间暂停（12:30 已点击）" }
+                log(">>> 12:00 暂停点击完成")
+                DispatchQueue.main.async { self.statusText = "🟡 午间暂停（12:00 已点击）" }
             }
         }
     }
@@ -745,15 +745,15 @@ class ActivityManager: ObservableObject {
     private func executeNoonResumeTask() {
         noonResumeTaskExecuted = true
         noonPauseTaskExecuted = false
-        log(">>> 13:30 恢复任务触发 → 点击 (\(Int(noonResumeClickPoint.x)), \(Int(noonResumeClickPoint.y)))")
+        log(">>> 13:00 恢复任务触发 → 点击 (\(Int(noonResumeClickPoint.x)), \(Int(noonResumeClickPoint.y)))")
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
             log(">>> 打开 App: \(self.appPath)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.performClick(at: self.noonResumeClickPoint)
-                log(">>> 13:30 恢复点击完成")
-                DispatchQueue.main.async { self.statusText = "🟢 午间恢复（13:30 已点击）" }
+                log(">>> 13:00 恢复点击完成")
+                DispatchQueue.main.async { self.statusText = "🟢 午间恢复（13:00 已点击）" }
                 // 点击完成后延迟 0.8 秒最小化 Monitask
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     self.minimizeMonitask()
@@ -762,7 +762,7 @@ class ActivityManager: ObservableObject {
         }
     }
 
-    // MARK: - 晚间任务（19:10–19:40 随机时间触发一次）
+    // MARK: - 晚间任务（18:30–19:00 随机时间触发一次）
     func startEveningMonitor() {
         let t = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             self?.checkEveningWindow()
@@ -794,29 +794,29 @@ class ActivityManager: ObservableObject {
 
     // MARK: - 测试按钮：分别测试三个点击
     func testNoonPauseClick() {
-        log(">>> 【测试】12:30 暂停点击")
+        log(">>> 【测试】12:00 暂停点击")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 self.performClick(at: self.noonPauseClickPoint)
-                log(">>> 【测试】12:30 暂停点击完成")
+                log(">>> 【测试】12:00 暂停点击完成")
             }
         }
     }
 
-    /// 完整复现真实 13:30 恢复流程（2s+3s 延迟、更新状态文字、点击后最小化），
+    /// 完整复现真实 13:00 恢复流程（2s+3s 延迟、更新状态文字、点击后最小化），
     /// 但不修改任务执行标志，可反复触发
     func simulateNoonResumeFlow() {
-        log(">>> 【模拟 13:30】完整复现 13:30 恢复任务（不写执行标志，可重复触发）")
-        DispatchQueue.main.async { self.statusText = "🟡 模拟 13:30 恢复中..." }
+        log(">>> 【模拟 13:00】完整复现 13:00 恢复任务（不写执行标志，可重复触发）")
+        DispatchQueue.main.async { self.statusText = "🟡 模拟 13:00 恢复中..." }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
-            log(">>> 【模拟 13:30】打开 App: \(self.appPath)")
+            log(">>> 【模拟 13:00】打开 App: \(self.appPath)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.performClick(at: self.noonResumeClickPoint)
-                log(">>> 【模拟 13:30】恢复点击完成")
-                DispatchQueue.main.async { self.statusText = "🟢 已模拟 13:30 恢复点击" }
+                log(">>> 【模拟 13:00】恢复点击完成")
+                DispatchQueue.main.async { self.statusText = "🟢 已模拟 13:00 恢复点击" }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     self.minimizeMonitask()
                 }
@@ -825,12 +825,12 @@ class ActivityManager: ObservableObject {
     }
 
     func testNoonResumeClick() {
-        log(">>> 【测试】13:30 恢复点击")
+        log(">>> 【测试】13:00 恢复点击")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             NSWorkspace.shared.open(URL(fileURLWithPath: self.appPath))
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 self.performClick(at: self.noonResumeClickPoint)
-                log(">>> 【测试】13:30 恢复点击完成")
+                log(">>> 【测试】13:00 恢复点击完成")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     self.minimizeMonitask()
                 }
@@ -849,9 +849,9 @@ class ActivityManager: ObservableObject {
         }
     }
 
-    /// 测试整套流程：依次执行 12:30 → 13:30 → 晚间，每个间隔 8 秒
+    /// 测试整套流程：依次执行 12:00 → 13:00 → 晚间，每个间隔 8 秒
     func testFullFlow() {
-        log(">>> 【测试】全流程：12:30 → 13:30 → 晚间")
+        log(">>> 【测试】全流程：12:00 → 13:00 → 晚间")
         testNoonPauseClick()
         DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
             self.testNoonResumeClick()

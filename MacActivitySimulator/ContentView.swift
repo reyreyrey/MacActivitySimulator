@@ -167,11 +167,11 @@ struct ContentView: View {
                             }
                             .padding(.vertical, 4)
                         } else {
-                            CoordRow(label: "12:30 暂停",
+                            CoordRow(label: "12:00 暂停",
                                      point: manager.noonPauseClickPoint,
                                      pickAction: { manager.startPicking(.noonPause) },
                                      testAction: { manager.testNoonPauseClick() })
-                            CoordRow(label: "13:30 恢复",
+                            CoordRow(label: "13:00 恢复",
                                      point: manager.noonResumeClickPoint,
                                      pickAction: { manager.startPicking(.noonResume) },
                                      testAction: { manager.testNoonResumeClick() })
@@ -188,7 +188,7 @@ struct ContentView: View {
 
                             HStack(spacing: 8) {
                                 Spacer()
-                                Button("模拟 13:30 全流程") { manager.simulateNoonResumeFlow() }
+                                Button("模拟 13:00 全流程") { manager.simulateNoonResumeFlow() }
                                     .buttonStyle(.borderedProminent)
                                     .tint(.green)
                                 Button("一键全流程测试") { manager.testFullFlow() }
