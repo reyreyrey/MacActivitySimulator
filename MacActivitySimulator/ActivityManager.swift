@@ -353,9 +353,18 @@ class ActivityManager: ObservableObject {
         comp.minute = eveningEndMinute
         guard let endBound = cal.date(from: comp) else { return }
 
-        let interval = endBound.timeIntervalSince(startBound)
-        let offset = Double.random(in: 0...interval)
-        let target = startBound.addingTimeInterval(offset)
+        // 随机范围下界取「现在」和 18:30 中较晚者：
+        // 若在窗口内（18:30–19:00）才启动，也能在剩余时间里取到一个未来时刻，
+        // 不会因为随机点落在过去而整天跳过晚间任务。
+        let lowerBound = max(now, startBound)
+        let target: Date
+        if lowerBound >= endBound {
+            // 已过 19:00
+            target = startBound.addingTimeInterval(-1)
+        } else {
+            let interval = endBound.timeIntervalSince(lowerBound)
+            target = lowerBound.addingTimeInterval(Double.random(in: 0...interval))
+        }
 
         if target < now {
             // 已经过了 19:00，今日跳过
@@ -717,12 +726,13 @@ class ActivityManager: ObservableObject {
         guard running else { return }
         let cal = Calendar.current
         let h = cal.component(.hour, from: Date())
-        let m = cal.component(.minute, from: Date())
 
-        if h == 12 && m == 30 && !noonPauseTaskExecuted {
+        // 到点（12:00 / 13:00）后只要当天还没执行过就触发，
+        // 避免因每 30 秒轮询错过整分那一秒而整天不触发。
+        if h == 12 && !noonPauseTaskExecuted {
             executeNoonPauseTask()
         }
-        if h == 13 && m == 30 && !noonResumeTaskExecuted {
+        if h == 13 && !noonResumeTaskExecuted {
             executeNoonResumeTask()
         }
     }
